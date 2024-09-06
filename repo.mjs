@@ -141,21 +141,14 @@ Respond with a JSON object where each key is the file path and the value is the 
 
   const systemMessage = "You are an expert Next.js developer with extensive knowledge of Flowbite React. Provide concise, well-structured code for a dashboard layout with left sidebar navigation using Flowbite React components. Output your response as a JSON object.";
 
-  // Generate the dashboard code using GPT
   const response = await generateCompletion(systemMessage, prompt);
 
-  // Parse the response and update files
-  try {
-    const updatedFiles = JSON.parse(response);
-    const filesToUpdate = Object.entries(updatedFiles).map(([filePath, content]) => ({
-      path: path.join(folderPath, filePath),
-      content
-    }));
-    await updateFiles(filesToUpdate);
-    console.log("Next.js dashboard with Flowbite React components created successfully!");
-  } catch (error) {
-    console.error("Error parsing or updating files:", error);
-  }
+const updatedFiles = JSON.parse(response);
+const filesToUpdate = Object.entries(updatedFiles).map(([filePath, content]) => ({
+    path: path.join(folderPath, filePath),
+    content
+}));
+await updateFiles(filesToUpdate);
 }
 
 

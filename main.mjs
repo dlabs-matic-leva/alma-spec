@@ -5,6 +5,9 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import { createNextjsDashboard } from './repo.mjs';
+import https from 'https';
+import path from 'path';
+import { classifyEndpoints } from './openai.mjs';
 
 const execAsync = promisify(exec);
 
@@ -40,7 +43,6 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
     
     const folderName = kebabCase(state.appName);
     
-    // Check if the folder exists
     if (await fs.access(folderName).then(() => true).catch(() => false)) {
       const answer = await ask(`Folder "${folderName}" already exists. Do you want to delete it? (y/n):`, "y");
       if (answer.toLowerCase() !== 'y') {
@@ -51,14 +53,13 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
       await fs.rm(folderName, { recursive: true, force: true });
     }
 
+    rl.close();
     console.log('\nScaffolding your app...');
 
     await execAsync(`npx create-flowbite-react ${folderName} -- --template nextjs --git no`);
     await execAsync(`cd ${folderName} && npm install`);
     console.log(`\nNext.js app scaffolded in ./${folderName}`);
-
-    rl.close();
-    return state;
+    return { ...state };
   })
   .then(async (state) => {
     console.log('\nScaffolding dashboard...');
@@ -66,6 +67,13 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
     await createNextjsDashboard(folderPath);
     console.log('Dashboard scaffolded successfully!');
     return state;
+  })
+  .then(async (state) => {
+    const specContent = await downloadJsonFile(state.url);
+    const classifications = await classifyEndpoints(specContent);
+    
+    console.log('Endpoint classifications:', classifications);
+    return { ...state, classifications };
   })
   .then(() => {
     console.log('Thank you for using the Alma-Spec Wizard. Goodbye!');
@@ -75,3 +83,23 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
     console.error('An error occurred:', error);
     process.exit(1);
   });
+
+async function downloadJsonFile(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download file. Status Code: ${response.statusCode}`));
+        return;
+      }
+
+      let data = '';
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        resolve(data);
+      });
+    }).on('error', reject);
+  });
+}

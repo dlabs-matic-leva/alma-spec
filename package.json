@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node main.mjs",
-    "test": "node createDashboard.mjs"
+    "test": "node createDashboard.mjs",
+    "start-alma": "cd alma && npm run dev"
   },
   "dependencies": {
     "dotenv": "^16.0.3",

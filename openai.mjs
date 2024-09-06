@@ -1,5 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
 
 dotenv.config();
 
@@ -17,5 +18,15 @@ export async function generateCompletion(system, prompt, model = 'gpt-4-turbo') 
     });
 
     return response.data.choices[0].message.content.trim();
+}
+
+export async function classifyEndpoints(jsonContent) {
+  const system = "You are an API expert. Classify each endpoint in the given OpenAPI specification as either 'listing', 'details', 'create', or 'update'.";
+  const prompt = `Here's an OpenAPI specification. Classify each endpoint and return the result as a JSON object where keys are the endpoints (in the format 'METHOD /path') and values are the classifications:
+
+${jsonContent}`;
+
+  const result = await generateCompletion(system, prompt);
+  return JSON.parse(result);
 }
 

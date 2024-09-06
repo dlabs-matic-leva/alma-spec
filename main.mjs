@@ -18,7 +18,12 @@ const header = `
 `;
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-const ask = (question) => new Promise((resolve) => rl.question(question + ' ', resolve));
+const ask = (question, prefill = '') => new Promise((resolve) => {
+  rl.question(question + ' ', (answer) => {
+    resolve(answer || prefill);
+  });
+  rl.write(prefill);
+});
 
 const kebabCase = (string) => string.replace(/\s+/g, '-').toLowerCase();
 
@@ -26,8 +31,8 @@ console.log(header);
 console.log('Welcome to the Alma-Spec Wizard!');
 console.log('Please answer the following questions to generate your app.');
 
-ask('Enter the URL of the OpenAPI specs:')
-  .then(url => ask('Enter the name of your app:').then(appName => ({ url, appName })))
+ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagger.json')
+  .then(url => ask('Enter the name of your app:', 'Alma').then(appName => ({ url, appName })))
   .then(async (state) => {
     console.log('\nGenerating app with the following details:');
     console.log('OpenAPI Specs URL:', state.url);
@@ -37,7 +42,7 @@ ask('Enter the URL of the OpenAPI specs:')
     
     // Check if the folder exists
     if (await fs.access(folderName).then(() => true).catch(() => false)) {
-      const answer = await ask(`Folder "${folderName}" already exists. Do you want to delete it? (y/n):`);
+      const answer = await ask(`Folder "${folderName}" already exists. Do you want to delete it? (y/n):`, "y");
       if (answer.toLowerCase() !== 'y') {
         console.log('Operation cancelled. Please choose a different app name.');
         rl.close();
@@ -47,30 +52,19 @@ ask('Enter the URL of the OpenAPI specs:')
     }
 
     console.log('\nScaffolding your app...');
-    
-    try {
-      await execAsync(`npx create-flowbite-react ${folderName} -- --template nextjs --git no`);
-      await execAsync(`cd ${folderName} && npm install`);
-      console.log(`\nNext.js app scaffolded in ./${folderName}`);
-    } catch (error) {
-      console.error('Error scaffolding Next.js app:', error);
-      throw error;
-    }
-    
-    console.log('\nApp generation complete!');
+
+    await execAsync(`npx create-flowbite-react ${folderName} -- --template nextjs --git no`);
+    await execAsync(`cd ${folderName} && npm install`);
+    console.log(`\nNext.js app scaffolded in ./${folderName}`);
+
     rl.close();
     return state;
   })
   .then(async (state) => {
     console.log('\nScaffolding dashboard...');
     const folderPath = kebabCase(state.appName);
-    try {
-      await createNextjsDashboard(folderPath);
-      console.log('Dashboard scaffolded successfully!');
-    } catch (error) {
-      console.error('Error scaffolding dashboard:', error);
-      throw error;
-    }
+    await createNextjsDashboard(folderPath);
+    console.log('Dashboard scaffolded successfully!');
     return state;
   })
   .then(() => {

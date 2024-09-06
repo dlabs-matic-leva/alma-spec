@@ -85,23 +85,56 @@ export async function updateFiles(files) {
  */
 export async function createNextjsDashboard(folderPath) {
   const appPath = path.join(folderPath, 'app');
+  const componentsPath = path.join(folderPath, 'components');
 
   // Read the contents of the app folder
   const appContent = await concatenateRepoFiles(appPath);
 
+  // Read contents of components folder if it exists
+  const componentsExists = await fs.access(componentsPath).then(() => true).catch(() => false);
+  const componentsContent = componentsExists ? await concatenateRepoFiles(componentsPath) : '';
+
   // Create the prompt for GPT
   const prompt = `
-Based on the following app folder content, create a simple Next.js dashboard with navigation in the left sidebar using Flowbite React for UI components:
+Based on the following app${componentsContent ? ' and components' : ''} folder content, create a simple Next.js dashboard with an empty navigation sidebar using Flowbite React for UI components:
 
+App folder content:
 ${appContent}
 
-Please provide the necessary code changes for the following files in a JSON format:
+${componentsContent ? `Components folder content:
+${componentsContent}
+
+` : ''}Please provide the necessary code changes for the following files in a JSON format:
 1. app/page.js (or app/page.tsx if using TypeScript)
 2. app/layout.js (or app/layout.tsx)
 3. components/Sidebar.js (or components/Sidebar.tsx)
 4. app/globals.css
 
-Ensure the dashboard has a clean, modern look using Flowbite React components. Include placeholder content for demonstration purposes. Make sure to import and use appropriate Flowbite React components such as Sidebar, Navbar, and any other relevant components for the dashboard layout.
+Ensure the dashboard has a clean, modern look using Flowbite React components. Include placeholder content for the main area, but keep the sidebar empty as we will be adding subpages later with further prompts. Make sure to import and use appropriate Flowbite React components such as Sidebar, Navbar, and any other relevant components for the dashboard layout.
+
+Important:
+- Name the main component in each file 'Page', 'Layout', and 'Sidebar' respectively.
+- When importing components, use the exact same name as the exported component.
+- Ensure all imports and exports are correctly named and matched.
+
+Use the following Sidebar component as a reference for the layout, but remove all the Sidebar.Item components:
+
+// components/Sidebar.js
+"use client";
+
+import { Sidebar as FlowbiteSidebar } from "flowbite-react";
+
+export function Sidebar() {
+  return (
+    <FlowbiteSidebar aria-label="Empty sidebar example">
+      <FlowbiteSidebar.Items>
+        <FlowbiteSidebar.ItemGroup>
+          {/* Sidebar items will be added later */}
+        </FlowbiteSidebar.ItemGroup>
+      </FlowbiteSidebar.Items>
+    </FlowbiteSidebar>
+  );
+}
 
 Respond with a JSON object where each key is the file path and the value is the file content.
 `;

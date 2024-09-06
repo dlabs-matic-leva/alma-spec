@@ -117,21 +117,21 @@ Important:
 - When importing components, use the exact same name as the exported component.
 - Ensure all imports and exports are correctly named and matched.
 
-Use the following Sidebar component as a reference for the layout, but remove all the Sidebar.Item components:
+Use the following Sidebar component as a reference for the layout, but remove all the SidebarItem components:
 
 // components/Sidebar.js
 "use client";
 
-import { Sidebar as FlowbiteSidebar } from "flowbite-react";
+import { Sidebar as FlowbiteSidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
 
 export function Sidebar() {
   return (
     <FlowbiteSidebar aria-label="Empty sidebar example">
-      <FlowbiteSidebar.Items>
-        <FlowbiteSidebar.ItemGroup>
+      <SidebarItems>
+        <SidebarItemGroup>
           {/* Sidebar items will be added later */}
-        </FlowbiteSidebar.ItemGroup>
-      </FlowbiteSidebar.Items>
+        </SidebarItemGroup>
+      </SidebarItems>
     </FlowbiteSidebar>
   );
 }
@@ -152,3 +152,118 @@ await updateFiles(filesToUpdate);
 }
 
 
+
+export async function generateListingPages(classifications, openApiSpec) {
+  const listingEndpoints = Object.entries(classifications)
+    .filter(([_, type]) => type === 'listing')
+    .slice(0, 1);
+
+  const pages = [];
+
+  for (const [endpoint, _] of listingEndpoints) {
+    const [method, path] = endpoint.split(' ');
+    const pathParts = path.split('/').filter(part => part);
+    const pageName = pathParts[pathParts.length - 1];
+    const componentName = `${pageName.charAt(0).toUpperCase() + pageName.slice(1)}ListingPage`;
+
+    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide a concise, well-structured code for a listing page using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
+
+    const prompt = `
+Create a complete Next.js page component for a listing page for the endpoint: ${endpoint}
+Use the following OpenAPI spec for this endpoint:
+${JSON.stringify(openApiSpec.paths[path][method.toLowerCase()])}
+
+Requirements:
+1. Use 'use client' at the top of the file.
+2. Name the component '${componentName}'.
+3. Include all necessary imports from flowbite-react, react, and any other required libraries.
+4. Use Flowbite React's Table component for displaying data.
+5. Implement pagination using the Pagination component from flowbite-react.
+6. Use the response schema to determine the table columns.
+7. Add an Edit link in the last column of each row.
+8. Implement a basic fetch function to get data from the API (you can use a placeholder URL).
+9. Use React hooks for state management and side effects.
+10. Handle loading and error states.
+11. Ensure the component has a clean, modern look using Flowbite React components.
+12. Include appropriate TypeScript types if applicable.
+
+Important:
+- When importing components, use the exact same name as the exported component.
+- Ensure all imports and exports are correctly named and matched.
+
+Respond with a JSON object where the key is 'component' and the value is the complete file content.
+`;
+
+    const response = await generateCompletion(system, prompt);
+    const pageContent = JSON.parse(response).component;
+    pages.push({ name: pageName, content: pageContent });
+  }
+
+  return pages;
+}
+  
+  export async function updateSidebar(pages) {
+    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide a concise, well-structured code for an updated sidebar component using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
+
+    const prompt = `
+Update the following sidebar component to include new navigation items for these pages: ${pages.map(p => p.name).join(', ')}
+
+Current sidebar component:
+import { Sidebar as FlowbiteSidebar, SidebarItems, SidebarItemGroup, SidebarItem } from 'flowbite-react';
+import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from 'react-icons/hi';
+
+export default function Sidebar() {
+  return (
+    <FlowbiteSidebar aria-label="Default sidebar example">
+      <SidebarItems>
+        <SidebarItemGroup>
+          <SidebarItem href="#" icon={HiChartPie}>
+            Dashboard
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiViewBoards} label="Pro" labelColor="dark">
+            Kanban
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiInbox} label="3">
+            Inbox
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiUser}>
+            Users
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiShoppingBag}>
+            Products
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiArrowSmRight}>
+            Sign In
+          </SidebarItem>
+          <SidebarItem href="#" icon={HiTable}>
+            Sign Up
+          </SidebarItem>
+        </SidebarItemGroup>
+      </SidebarItems>
+    </FlowbiteSidebar>
+  );
+}
+
+Requirements:
+1. Use 'use client' at the top of the file as it's a client component.
+2. Keep the component name as 'DefaultSidebar'.
+3. Import individual components from flowbite-react (Sidebar, SidebarItems, SidebarItemGroup, SidebarItem).
+4. Include all necessary imports from react-icons/hi, and any other required libraries.
+5. Add new SidebarItem components for each new page, using appropriate icons.
+6. Ensure the component has a clean, modern look using Flowbite React components.
+7. Include appropriate TypeScript types if applicable.
+8. Maintain the existing structure and styling of the sidebar.
+9. Use relative paths for the 'href' prop in new SidebarItem components (e.g., '/users' for a Users page).
+
+Important:
+- Use full component names (e.g., SidebarItems instead of Sidebar.Items).
+- When importing components, use the exact same name as the exported component.
+- Ensure all imports and exports are correctly named and matched.
+- Choose appropriate icons from the HeroIcons (hi) set for the new pages.
+
+Respond with a JSON object where the key is 'component' and the value is the complete file content.
+`;
+
+    const response = await generateCompletion(system, prompt);
+    return JSON.parse(response).component;
+  }

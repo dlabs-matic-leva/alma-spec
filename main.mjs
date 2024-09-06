@@ -4,10 +4,11 @@ import readline from 'node:readline';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import { createNextjsDashboard } from './repo.mjs';
+import { createNextjsDashboard, generateListingPages, updateSidebar, updateFiles } from './repo.mjs';
 import https from 'https';
 import path from 'path';
 import { classifyEndpoints } from './openai.mjs';
+import ora from 'ora';
 
 const execAsync = promisify(exec);
 
@@ -29,6 +30,8 @@ const ask = (question, prefill = '') => new Promise((resolve) => {
 });
 
 const kebabCase = (string) => string.replace(/\s+/g, '-').toLowerCase();
+
+const spinner = ora();
 
 console.log(header);
 console.log('Welcome to the Alma-Spec Wizard!');
@@ -54,33 +57,57 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
     }
 
     rl.close();
-    console.log('\nScaffolding your app...');
+    spinner.start('Scaffolding your app...');
 
     await execAsync(`npx create-flowbite-react ${folderName} -- --template nextjs --git no`);
     await execAsync(`cd ${folderName} && npm install`);
-    console.log(`\nNext.js app scaffolded in ./${folderName}`);
+    spinner.succeed(`Next.js app scaffolded in ./${folderName}`);
     return { ...state };
   })
   .then(async (state) => {
-    console.log('\nScaffolding dashboard...');
+    spinner.start('Scaffolding dashboard...');
+    spinner.clear();
     const folderPath = kebabCase(state.appName);
     await createNextjsDashboard(folderPath);
-    console.log('Dashboard scaffolded successfully!');
+    spinner.succeed('Dashboard scaffolded successfully!');
     return state;
   })
   .then(async (state) => {
+    spinner.start('Classifying endpoints...');
     const specContent = await downloadJsonFile(state.url);
     const classifications = await classifyEndpoints(specContent);
-    
-    console.log('Endpoint classifications:', classifications);
-    return { ...state, classifications };
+    spinner.succeed('Endpoints classified');
+
+    spinner.start('Generating pages...');
+    const openApiSpec = JSON.parse(specContent);
+    const listingPages = await generateListingPages(classifications, openApiSpec);
+    const updatedSidebar = await updateSidebar(listingPages);
+    spinner.succeed('Pages generated');
+
+    spinner.start('Updating sidebar...');
+    const folderPath = kebabCase(state.appName);
+    const filesToUpdate = [
+      ...listingPages.map(page => ({
+        path: path.join(folderPath, 'app', page.name, 'page.tsx'),
+        content: page.content
+      })),
+      {
+        path: path.join(folderPath, 'components', 'Sidebar.tsx'),
+        content: updatedSidebar
+      }
+    ];
+    await updateFiles(filesToUpdate);
+    spinner.succeed('Files written successfully');
+
+    return { ...state, classifications, listingPages, updatedSidebar };
   })
   .then(() => {
     console.log('Thank you for using the Alma-Spec Wizard. Goodbye!');
     process.exit(0);
   })
   .catch((error) => {
-    console.error('An error occurred:', error);
+    spinner.fail('An error occurred');
+    console.error(error);
     process.exit(1);
   });
 

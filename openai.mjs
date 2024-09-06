@@ -1,6 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
 import dotenv from 'dotenv';
-import fs from 'fs/promises';
 
 dotenv.config();
 
@@ -29,4 +28,3 @@ ${jsonContent}`;
   const result = await generateCompletion(system, prompt);
   return JSON.parse(result);
 }
-

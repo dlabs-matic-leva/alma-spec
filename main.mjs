@@ -4,6 +4,7 @@ import readline from 'node:readline';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
+import { createNextjsDashboard } from './repo.mjs';
 
 const execAsync = promisify(exec);
 
@@ -58,6 +59,18 @@ ask('Enter the URL of the OpenAPI specs:')
     
     console.log('\nApp generation complete!');
     rl.close();
+    return state;
+  })
+  .then(async (state) => {
+    console.log('\nScaffolding dashboard...');
+    const folderPath = kebabCase(state.appName);
+    try {
+      await createNextjsDashboard(folderPath);
+      console.log('Dashboard scaffolded successfully!');
+    } catch (error) {
+      console.error('Error scaffolding dashboard:', error);
+      throw error;
+    }
     return state;
   })
   .then(() => {

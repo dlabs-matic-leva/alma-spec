@@ -1,1 +1,4 @@
 /alma
+
+node_modules
+.env

@@ -1,0 +1,15 @@
+{
+  "name": "alma-spec",
+  "version": "1.0.0",
+  "description": "Alma Spec CLI tool",
+  "main": "main.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node main.mjs",
+    "test": "node createDashboard.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1"
+  }
+}

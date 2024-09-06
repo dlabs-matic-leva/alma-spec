@@ -80,15 +80,16 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
 
     spinner.start('Generating pages...');
     const openApiSpec = JSON.parse(specContent);
-    const listingPages = await generateListingPages(classifications, openApiSpec);
-    const updatedSidebar = await updateSidebar(listingPages);
+    const folderPath = kebabCase(state.appName);
+    const listingPages = await generateListingPages(folderPath, classifications, openApiSpec);
+    const updatedSidebar = await updateSidebar(folderPath, listingPages);
     spinner.succeed('Pages generated');
 
-    spinner.start('Updating sidebar...');
-    const folderPath = kebabCase(state.appName);
+    spinner.start('Updating files...');
+    spinner.stop();
     const filesToUpdate = [
       ...listingPages.map(page => ({
-        path: path.join(folderPath, 'app', page.name, 'page.tsx'),
+        path: path.join(folderPath, 'app', page.path),
         content: page.content
       })),
       {
@@ -96,7 +97,6 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
         content: updatedSidebar
       }
     ];
-    spinner.stop();
     await updateFiles(filesToUpdate);
     spinner.succeed('Files written successfully');
 

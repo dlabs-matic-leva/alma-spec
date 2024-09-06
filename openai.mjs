@@ -9,7 +9,23 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-export async function generateCompletion(system, prompt, model = 'gpt-4o') {
+const defaultSystem = `You are an expert Next.js developer with extensive knowledge of Flowbite React. Provide concise, well-structured code for a dashboard layout with left sidebar navigation using Flowbite React components. 
+
+Ensure the dashboard has a clean, modern look using Flowbite React components.
+
+Important:
+- Use TypeScript for all components.
+- Ensure the component has a clean, modern look using Flowbite React components.
+- Provide comprehensive TypeScript types for all props, state, and functions.
+- When importing components from 'flowbite-react', use named imports (e.g., import { Sidebar, Navbar } from 'flowbite-react').
+- When create components, use default named exports.
+- When importing your own components, use default imports.
+- Ensure all imports and exports are correctly named and matched.
+- Use the 'use client' directive at the top of client components.
+- Respond with a JSON object where each key is the file path and the value is the file content. Example {"file.tsx": "import React from 'react';"}
+`;
+
+export async function generateCompletion(prompt, system = defaultSystem, model = 'gpt-4o') {
     const response = await openai.createChatCompletion({
         model: model,
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
@@ -25,6 +41,6 @@ export async function classifyEndpoints(jsonContent) {
 
 ${jsonContent}`;
 
-  const result = await generateCompletion(system, prompt);
+  const result = await generateCompletion(prompt, system);
   return JSON.parse(result);
 }

@@ -1,4 +1,6 @@
-/alma
+/alma/*
+!/alma/app
+!/alma/components
 
 node_modules
 .env

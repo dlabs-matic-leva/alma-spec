@@ -11,38 +11,28 @@ const header = `
 ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝      ╚══════╝╚═╝     ╚══════╝ ╚═════╝
 `;
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  prompt: 'CLI> '
-});
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const ask = (question) => new Promise((resolve) => rl.question(question + ' ', resolve));
 
 console.log(header);
-console.log('Interactive CLI started. Type "exit" to quit.');
-rl.prompt();
+console.log('Welcome to the Alma-Spec Wizard!');
+console.log('Please answer the following questions to generate your app.');
 
-rl.on('line', (line) => {
-  const input = line.trim();
-  if (input === 'exit') {
+ask('Enter the URL of the OpenAPI specs:')
+  .then(url => ask('Enter the name of your app:').then(appName => ({ url, appName })))
+  .then(state => {
+    console.log('\nGenerating app with the following details:');
+    console.log('OpenAPI Specs URL:', state.url);
+    console.log('App Name:', state.appName);
+    console.log('\nApp generation complete!');
     rl.close();
-    return;
-  }
-
-  const [command, ...args] = input.split(' ');
-  switch (command) {
-    case 'hello':
-      if (args.length === 0) {
-        console.log('Error: Name is required for the hello command.');
-      } else {
-        console.log(`Hello, ${args[0]}!`);
-      }
-      break;
-    default:
-      console.log(`Unknown command: ${command}`);
-  }
-
-  rl.prompt();
-}).on('close', () => {
-  console.log('Exiting CLI. Goodbye!');
-  process.exit(0);
-});
+    return state;
+  })
+  .then(() => {
+    console.log('Thank you for using the Alma-Spec Wizard. Goodbye!');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('An error occurred:', error);
+    process.exit(1);
+  });

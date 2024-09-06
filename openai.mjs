@@ -9,7 +9,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-export async function generateCompletion(system, prompt, model = 'gpt-4-turbo') {
+export async function generateCompletion(system, prompt, model = 'gpt-4o') {
     const response = await openai.createChatCompletion({
         model: model,
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],

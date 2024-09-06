@@ -66,7 +66,7 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
   })
   .then(async (state) => {
     spinner.start('Scaffolding dashboard...');
-    spinner.clear();
+    spinner.stop();
     const folderPath = kebabCase(state.appName);
     await createNextjsDashboard(folderPath);
     spinner.succeed('Dashboard scaffolded successfully!');
@@ -96,6 +96,7 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
         content: updatedSidebar
       }
     ];
+    spinner.stop();
     await updateFiles(filesToUpdate);
     spinner.succeed('Files written successfully');
 

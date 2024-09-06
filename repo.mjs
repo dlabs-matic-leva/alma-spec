@@ -105,21 +105,23 @@ ${componentsContent ? `Components folder content:
 ${componentsContent}
 
 ` : ''}Please provide the necessary code changes for the following files in a JSON format:
-1. app/page.js (or app/page.tsx if using TypeScript)
-2. app/layout.js (or app/layout.tsx)
-3. components/Sidebar.js (or components/Sidebar.tsx)
+1. app/page.tsx
+2. app/layout.tsx
+3. components/Sidebar.tsx
 4. app/globals.css
 
 Ensure the dashboard has a clean, modern look using Flowbite React components. Include placeholder content for the main area, but keep the sidebar empty as we will be adding subpages later with further prompts. Make sure to import and use appropriate Flowbite React components such as Sidebar, Navbar, and any other relevant components for the dashboard layout.
 
 Important:
-- Name the main component in each file 'Page', 'Layout', and 'Sidebar' respectively.
-- When importing components, use the exact same name as the exported component.
+- Use TypeScript for all components.
+- Name the main component in each file 'Page', 'RootLayout', and 'Sidebar' respectively.
+- When importing components from 'flowbite-react', use named imports (e.g., import { Sidebar, Navbar } from 'flowbite-react').
 - Ensure all imports and exports are correctly named and matched.
+- Use the 'use client' directive at the top of client components.
 
 Use the following Sidebar component as a reference for the layout, but remove all the SidebarItem components:
 
-// components/Sidebar.js
+// components/Sidebar.tsx
 "use client";
 
 import { Sidebar as FlowbiteSidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
@@ -166,7 +168,7 @@ export async function generateListingPages(classifications, openApiSpec) {
     const pageName = pathParts[pathParts.length - 1];
     const componentName = `${pageName.charAt(0).toUpperCase() + pageName.slice(1)}ListingPage`;
 
-    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide a concise, well-structured code for a listing page using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
+    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide concise, well-structured code for a listing page using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
 
     const prompt = `
 Create a complete Next.js page component for a listing page for the endpoint: ${endpoint}
@@ -176,20 +178,24 @@ ${JSON.stringify(openApiSpec.paths[path][method.toLowerCase()])}
 Requirements:
 1. Use 'use client' at the top of the file.
 2. Name the component '${componentName}'.
-3. Include all necessary imports from flowbite-react, react, and any other required libraries.
-4. Use Flowbite React's Table component for displaying data.
-5. Implement pagination using the Pagination component from flowbite-react.
-6. Use the response schema to determine the table columns.
-7. Add an Edit link in the last column of each row.
-8. Implement a basic fetch function to get data from the API (you can use a placeholder URL).
-9. Use React hooks for state management and side effects.
-10. Handle loading and error states.
-11. Ensure the component has a clean, modern look using Flowbite React components.
-12. Include appropriate TypeScript types if applicable.
+3. Use TypeScript for the component.
+4. Include all necessary imports from flowbite-react, react, and any other required libraries.
+5. Use Flowbite React's Table component for displaying data.
+6. Implement pagination using the Pagination component from flowbite-react.
+7. Use the response schema to determine the table columns.
+8. Add an Edit link in the last column of each row.
+9. Implement a basic fetch function to get data from the API (you can use a placeholder URL).
+10. Use React hooks for state management and side effects.
+11. Handle loading and error states.
+12. Ensure the component has a clean, modern look using Flowbite React components.
+13. Include appropriate TypeScript types.
 
 Important:
-- When importing components, use the exact same name as the exported component.
+- When importing components from 'flowbite-react', use named imports (e.g., import { Table, Pagination } from 'flowbite-react').
 - Ensure all imports and exports are correctly named and matched.
+- Use the 'use client' directive at the top of the file.
+- Use arrow functions for the component and any internal functions.
+- Provide comprehensive TypeScript types for all props, state, and functions.
 
 Respond with a JSON object where the key is 'component' and the value is the complete file content.
 `;
@@ -203,7 +209,7 @@ Respond with a JSON object where the key is 'component' and the value is the com
 }
   
   export async function updateSidebar(pages) {
-    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide a concise, well-structured code for an updated sidebar component using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
+    const system = "You are an expert Next.js and React developer with extensive knowledge of Flowbite React. Provide concise, well-structured code for an updated sidebar component using Flowbite React components. Output your response as a JSON object with a single key 'component' containing the entire component code.";
 
     const prompt = `
 Update the following sidebar component to include new navigation items for these pages: ${pages.map(p => p.name).join(', ')}
@@ -246,20 +252,23 @@ export default function Sidebar() {
 
 Requirements:
 1. Use 'use client' at the top of the file as it's a client component.
-2. Keep the component name as 'DefaultSidebar'.
-3. Import individual components from flowbite-react (Sidebar, SidebarItems, SidebarItemGroup, SidebarItem).
-4. Include all necessary imports from react-icons/hi, and any other required libraries.
-5. Add new SidebarItem components for each new page, using appropriate icons.
-6. Ensure the component has a clean, modern look using Flowbite React components.
-7. Include appropriate TypeScript types if applicable.
-8. Maintain the existing structure and styling of the sidebar.
-9. Use relative paths for the 'href' prop in new SidebarItem components (e.g., '/users' for a Users page).
+2. Use TypeScript for the component.
+3. Name the component 'Sidebar' and export it as the default.
+4. Import individual components from flowbite-react (Sidebar, SidebarItems, SidebarItemGroup, SidebarItem).
+5. Include all necessary imports from react-icons/hi, and any other required libraries.
+6. Add new SidebarItem components for each new page, using appropriate icons.
+7. Ensure the component has a clean, modern look using Flowbite React components.
+8. Include appropriate TypeScript types.
+9. Maintain the existing structure and styling of the sidebar.
+10. Use relative paths for the 'href' prop in new SidebarItem components (e.g., '/users' for a Users page).
 
 Important:
 - Use full component names (e.g., SidebarItems instead of Sidebar.Items).
-- When importing components, use the exact same name as the exported component.
+- When importing components from 'flowbite-react', use named imports.
 - Ensure all imports and exports are correctly named and matched.
 - Choose appropriate icons from the HeroIcons (hi) set for the new pages.
+- Use an arrow function for the component.
+- Provide comprehensive TypeScript types for props if applicable.
 
 Respond with a JSON object where the key is 'component' and the value is the complete file content.
 `;

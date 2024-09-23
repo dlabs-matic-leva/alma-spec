@@ -16,7 +16,7 @@ export default function LoginForm() {
             <Card className="w-full max-w-sm">
                 <form action={login}>
                 <CardHeader>
-                    <CardTitle className="text-2xl text-center">Jamboo Back office</CardTitle>
+                    <CardTitle className="text-2xl text-center">Jamboo Back Office</CardTitle>
                     <CardDescription>
                         Enter your credentials below to enter the Jamboo back office
                     </CardDescription>

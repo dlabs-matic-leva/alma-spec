@@ -33,8 +33,8 @@ console.log(header);
 console.log('Welcome to the Alma-Spec Wizard!');
 console.log('Please answer the following questions to generate your back office.');
 
-ask('Enter the URL of the OpenAPI specs:', 'https://api.jamboo.app/swagger.json')
-  .then(url => ask('Enter the name of your back office:', 'Alma').then(appName => ({ url, appName })))
+ask('Enter the URL of the OpenAPI specs:', '') // https://api.jamboo.app/swagger.json
+  .then(url => ask('Enter the name of your back office:', '').then(appName => ({ url, appName }))) // Jamboo
   .then(async (state) => {
     console.log('\nGenerating back office with the following details:');
     console.log('OpenAPI Specs URL:', state.url);
@@ -53,7 +53,7 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api.jamboo.app/swagger.json'
   .then(async (state) => {
     spinner.start('Analyzing OpenAPI specs...');
     await delay(28000);
-    spinner.succeed('OpenAPI specs analyzed successfully');
+    spinner.succeed('OpenAPI specs analyzed successfully!');
     spinner.start('Classifying endpoints...');
     await delay(48000);
     spinner.succeed('43 endpoints classified');

@@ -37,7 +37,7 @@ console.log(header);
 console.log('Welcome to the Alma-Spec Wizard!');
 console.log('Please answer the following questions to generate your app.');
 
-ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagger.json')
+ask('Enter the URL of the OpenAPI specs:', 'https://catfact.ninja/docs/api-docs.json')
   .then(url => ask('Enter the name of your app:', 'Alma').then(appName => ({ url, appName })))
   .then(async (state) => {
     console.log('\nGenerating app with the following details:');
@@ -77,6 +77,10 @@ ask('Enter the URL of the OpenAPI specs:', 'https://api-staging.jamboo.app/swagg
     const specContent = await downloadJsonFile(state.url);
     const classifications = await classifyEndpoints(specContent);
     spinner.succeed('Endpoints classified');
+    for (const [endpoint, classification] of Object.entries(classifications)) {
+      console.log(`${endpoint}: ${classification}`);
+    }
+    
 
     spinner.start('Generating pages...');
     const openApiSpec = JSON.parse(specContent);

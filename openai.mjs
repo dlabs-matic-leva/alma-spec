@@ -23,6 +23,10 @@ Important:
 - Ensure all imports and exports are correctly named and matched.
 - Use the 'use client' directive at the top of client components.
 - Respond with a JSON object where each key is the file path and the value is the file content. Example {"file.tsx": "import React from 'react';"}
+- Dont import files that don't exist.
+- Dont hallucinate and be consistent.
+- next/router is deprecated, use next/navigation
+- correct syntax for "use client" is \`"use client";\` and it can only be at the top of the file.
 `;
 
 export async function generateCompletion(prompt, system = defaultSystem, model = 'gpt-4o') {

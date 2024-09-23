@@ -49,12 +49,12 @@ const data = {
   navMain: [
     {
       title: "Home",
-      url: "/",
+      url: "/app",
       icon: House,
     },
     {
       title: "Clients",
-      url: "/clients",
+      url: "/app/clients",
       icon: Users,
     },
     {

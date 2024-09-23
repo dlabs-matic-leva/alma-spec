@@ -574,7 +574,8 @@ export default function Clients() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem className="text-warning" onClick={() => {
+                                                <DropdownMenuItem>Details</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive" onClick={() => {
                                                     setClients(clients.map((c, i) => {
                                                         if (i === index) {
                                                             return {...c, status: "blocked"}
@@ -582,7 +583,6 @@ export default function Clients() {
                                                         return c;
                                                         }));
                                                 }}>Block</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

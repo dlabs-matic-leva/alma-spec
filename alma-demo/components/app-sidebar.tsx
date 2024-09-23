@@ -6,7 +6,7 @@ import {
   CirclePercent,
   CreditCard,
   Frame,
-  HandCoins,
+  HandCoins, House,
   HousePlus,
   Landmark,
   LifeBuoy,
@@ -48,10 +48,14 @@ const data = {
   },
   navMain: [
     {
+      title: "Home",
+      url: "/",
+      icon: House,
+    },
+    {
       title: "Clients",
-      url: "#",
+      url: "/clients",
       icon: Users,
-      isActive: true,
     },
     {
       title: "Bank accounts",

@@ -17,7 +17,7 @@ export default async function RootLayout({
     return (
         <html lang="en">
         <head>
-            <title>Alma Back Office</title>
+            <title>Jamboo Back Office</title>
         </head>
         <body className={`${inter.className}`}>
                     {children}
